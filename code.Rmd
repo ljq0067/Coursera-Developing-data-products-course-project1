@@ -1,0 +1,48 @@
+---
+title: "Developing Data Products - Project 1"
+author: "Jieqian Liu"
+date: "Aug 9 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(leaflet)
+```
+
+## Introduction
+
+Below is an interactive map created in Leaflet, as per the Coursera, Developing Data Products Week 2 project. I have chosen to use R's "quakes" dataset, which provides locations of seismic events in Fiji. <br />
+The circle radii and color are scaled accoring to quake magnitude. The magnitude can be seen by clicking on a particular quake. <br />
+Please note that as the instructions for the assignment ask for no more than 1) a map, and 2) a date, nothing more than that has been included.
+
+
+```{r, echo=F}
+data("quakes")
+quakes_new <- quakes
+```
+
+## Map Code
+```{r, echo=F}
+exponent <- 6
+# Make the magnitude differences more pronounced
+quakes_new$mag <- quakes_new$mag^exponent
+# Create a continuous palette function
+pal <- colorNumeric(
+  palette = "YlOrRd",
+  domain = quakes_new$mag)
+```
+
+```{r, echo=F}
+map <- leaflet(quakes_new) %>%
+  addTiles() %>%
+  addCircles(lat=~lat,
+             lng=~long,
+             color=~pal(mag),
+             radius=~mag,
+             weight=~depth%>%log(),
+             popup=~mag%>%'^'(1/exponent)%>%paste("Magnitude:", .)
+  )
+map
+```
